@@ -50,13 +50,41 @@ let socket = new Socket("/socket")
 //
 // Finally, pass the token on connect as below. Or remove it
 // from connect if you don't care about authentication.
+import map from './app'
 
 socket.connect({token: window.userToken})
 
-// Now that you are connected, you can join channels with a topic:
-let channel = socket.channel("topic:subtopic", {})
+let queryInput = document.querySelector('#query-input')
+let queryForm = document.querySelector('#query-form')
+
+let channel = socket.channel("maps:map", {})
+
 channel.join()
-  .receive("ok", resp => { console.log("Joined succesffuly", resp) })
-  .receive("error", resp => { console.log("Unabled to join", resp) })
+  .receive('ok', resp => {
+    console.log('Joined succesffuly', resp) 
+  })
+  .receive('error', resp => { console.log('Unabled to join', resp) })
+
+queryForm.addEventListener('submit', event => {
+  event.preventDefault()
+  channel.push('new_tweet', {
+    query: queryInput.value 
+  })
+})
+
+channel.on('new_tweet', tweet => {
+  let media = tweet.entities.media || []
+  let urls = media.map(m => m.media_url)
+  let imgs = urls.map(u => `<img src="${u}" style="max-width: 250px"/>`)
+  let imgsMarkup = imgs.join('')
+  map.addMarker({
+    lat: tweet.lat,
+    lng: tweet.lng,
+    title: tweet.text,
+    infoWindow: {
+      content: `<h4>${tweet.text}</h4>${imgsMarkup}`
+    }
+  })
+})
 
 export default socket

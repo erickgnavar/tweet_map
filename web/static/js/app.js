@@ -18,4 +18,13 @@ import "deps/phoenix_html/web/static/js/phoenix_html"
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
-// import socket from "./socket"
+let map = new GMaps({
+  div: '#map',
+  lat: -12.043333,
+  lng: -77.028333,
+  zoom: 2
+})
+
+export default map
+
+import socket from "./socket"
